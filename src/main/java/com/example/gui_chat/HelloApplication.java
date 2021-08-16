@@ -18,7 +18,8 @@ public class HelloApplication extends Application {
         stage.show();
         stage.setOnCloseRequest(e->{
             Platform.exit();
-            System.exit(0); });
+            System.exit(0);
+        });
     }
 
     public static void main(String[] args) {

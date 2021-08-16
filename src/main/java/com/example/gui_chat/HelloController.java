@@ -8,16 +8,18 @@ import javafx.scene.control.TextField;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class HelloController {
     Socket socket;
     @FXML
     TextField textField;
-
     @FXML
     TextArea textArea;
-
+    @FXML
+    TextArea ONLINE;
     @FXML
     private  void send() {
         try {
@@ -36,15 +38,29 @@ public class HelloController {
     private void connect() {
         try {
             socket = new Socket("localhost", 8188);
-            DataInputStream in = new DataInputStream(socket.getInputStream());
+            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     while (true) {
+                        String response = "";
+                        ArrayList<String> usersName = new ArrayList<String>();
                         try {
-                            String response = in.readUTF();
-                            textArea.appendText(response + "\n");
-                        } catch (IOException e) {
+                            Object object = ois.readObject();
+                            if(object.getClass().equals(usersName.getClass())){
+                                usersName = ((ArrayList<String>) object);
+                                System.out.println(usersName);
+                                ONLINE.clear(); // Очищает TextArea
+                                for (String userName:usersName) {
+                                    ONLINE.appendText(userName+"\n");
+                                }
+                            }else if (object.getClass().equals(response.getClass())){
+                                response = object.toString();
+                                textArea.appendText(response+"\n");
+                            }else{
+                                textArea.appendText("Произошла ошибка");
+                            }
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
